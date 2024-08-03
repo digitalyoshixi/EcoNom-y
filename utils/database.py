@@ -2,11 +2,12 @@ import os
 import supabase
 import uuid
 
-# -- Create a global variable for the supabase API so all files can use it
+
 supabase_api = None
 def get_supabase_api():
     global supabase_api
     if supabase_api is None:
+        # Create a new connection if it doesn't exist
         import load_env
         project_url: str = os.environ["SUPABASE_PROJECT_URL"]
         api_key: str = os.environ["SUPABASE_API_KEY"]
@@ -22,6 +23,9 @@ class SupabaseAPI:
     def select(self, table, columns):
         return supabase_api.database.table(table).select(columns).execute()
 
+    def selectspecific(self, table, columns, eqcol, eqval): # SELECT <column> from <table> where <eqcol> = <eqval>
+        return supabase_api.database.table(table).select(columns).eq(eqcol,eqval).execute()
+
     def insert(self, table, keymap):
         supabase_api.database.table(table).insert(keymap).execute()
 
@@ -34,6 +38,8 @@ class SupabaseAPI:
             "family_members" : numfamily,
             "id" : max_id+1
         })
+    #def verify_user(self, username, password):
+
 
 if __name__ == "__main__":
     import load_env
@@ -42,11 +48,14 @@ if __name__ == "__main__":
     api_key: str = os.environ["SUPABASE_API_KEY"]
 
     supabase_api = SupabaseAPI(project_url, api_key)
-    #print(supabase_api.database.table("profiles").select("*").execute())
-   
-    supabase_api.insert("profiles",{
-        "profile" : "daniel",
-        "password" : "password123",
-        "family_members" : 20,
-        "id" : max_id+1
-       })
+    # print(supabase_api.database.table("profiles").select("*").execute())
+    result = supabase_api.database.table("profiles").select(
+        "id").order("id", desc=True).limit(1).execute()
+    max_id = result.data[0]['id'] if result.data else 0
+
+    supabase_api.insert("profiles", {
+        "profile": "daniel",
+        "password": "password123",
+        "family_members": 20,
+        "id": max_id + 1
+    })

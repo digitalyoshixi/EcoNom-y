@@ -1,5 +1,9 @@
 import streamlit as st
-from utils.database import SupabaseAPI 
+import sys
+sys.path.insert(1, 'utils')
+from database import get_supabase_api
+
+supabase_api = get_supabase_api()
 
 st.title("Log into your EcoNom-y account")
 
@@ -9,14 +13,19 @@ def login():
     username = st.session_state.un
     password = st.session_state.pw
 
+    filtered=True
+    # Filters
     if len(username) == 0:
         form.error("Enter your username")
+        filtered=False
     if len(password) == 0:
         form.error("Enter your password")
-
+        filtered=False
 
     #communicates with database from here
-
+    if filtered:
+        print(supabase_api.selectspecific("profiles","password","profile","bob"))
+        # supabase_api.select
 
 with form:
     st.text_input("Username", key="un")

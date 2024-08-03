@@ -1,5 +1,3 @@
-from .allrecipes import AllRecipes
-
 
 class AllRecipesAPI:
     def __init__(self):
@@ -24,18 +22,12 @@ class AllRecipesAPI:
         return self.recipe_scraper.get(recipe_url)
 
 
-if __name__ == "__main__":
+if __name__ != "__main__":
+    from .allrecipes import AllRecipes
+else:
+    from allrecipes import AllRecipes
+
     all_recipes_api = AllRecipesAPI()
-    search_response = all_recipes_api.search_recipe("Potato Salad")
-
-    first_result = search_response[0]
-    recipe_name = first_result["name"]
-    recipe_url = first_result['url']
-    recipe_rating = first_result['rate']
-    recipe_image = first_result['image']
-
-    print(first_result)
-    print(f"{recipe_name=}, {recipe_url=}, {recipe_rating=}, {recipe_image=}")
-
-    recipe_information = all_recipes_api.get_recipe(first_result['url'])
-    print(recipe_information)
+    print(all_recipes_api.search_recipe('hotdog') != [])
+    print(all_recipes_api.get_recipe(
+        "https://www.allrecipes.com/recipe/16729/old-fashioned-potato-salad/") != {})
