@@ -6,3 +6,4 @@ BeautifulSoup4
 lxml
 faust-cchardet
 bcrypt
+json-repair
