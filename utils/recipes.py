@@ -28,6 +28,6 @@ else:
     from allrecipes import AllRecipes
 
     all_recipes_api = AllRecipesAPI()
-    recipe_information = all_recipes_api.get_recipe(
-        "https://www.allrecipes.com/recipe/16729/old-fashioned-potato-salad/")
-    print(recipe_information)
+    print(all_recipes_api.search_recipe('hotdog') != [])
+    print(all_recipes_api.get_recipe(
+        "https://www.allrecipes.com/recipe/16729/old-fashioned-potato-salad/") != {})
