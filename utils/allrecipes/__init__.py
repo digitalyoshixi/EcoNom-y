@@ -4,7 +4,7 @@ import requests
 import random
 import lxml
 import cchardet
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
 
 
 class AllRecipes:
@@ -17,7 +17,6 @@ class AllRecipes:
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"}
 
     def _fetch_page(self, url, params=None):
-        # only_article = SoupStrainer("article")
         response = self.session.get(url, params=params)
         return BeautifulSoup(response.text, 'lxml')
 
