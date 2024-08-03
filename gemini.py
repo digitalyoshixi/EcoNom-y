@@ -4,7 +4,6 @@ from PIL import Image, ImageFile
 
 class GeminiAPI():
     def __init__(self, api_key: str) -> None:
-        # Configure Gemini with API key
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-1.5-flash')
     
@@ -16,14 +15,18 @@ class GeminiAPI():
             prompt: The prompt to send Gemini.
             imgobj: An image object given by PIL.Image.open
         """
-        # assuming imgobj is created like img =('image.jpg')
         response = self.model.generate_content([prompt, img])
-        
         return response.text
 
-    def restxt(self, prompt):
+    def restxt(self, prompt: str) -> str:
+        """
+        Sends a prompt to Google Gemini, returns the response.
+
+        Parameters:
+            prompt: The prompt to send Gemini.
+        """
         response = self.model.generate_content(prompt)
-        print(response)
+        return response.text
 
 
 if __name__ == "__main__":
