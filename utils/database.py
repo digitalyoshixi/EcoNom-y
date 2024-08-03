@@ -1,12 +1,12 @@
 import os
-from supabase import create_client, Client
+import supabase
 
 
 class SupabaseAPI:
-    database: Client
+    database: supabase.Client
 
     def __init__(self, project_url: str, api_key: str):
-        self.database = create_client(project_url, api_key)
+        self.database = supabase.create_client(project_url, api_key)
 
 
 if __name__ == "__main__":
