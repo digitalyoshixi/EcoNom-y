@@ -34,6 +34,8 @@ class SupabaseAPI:
             "family_members" : numfamily,
             "id" : max_id+1
         })
+    #def verify_user(self, username, password):
+
 
 if __name__ == "__main__":
     import load_env

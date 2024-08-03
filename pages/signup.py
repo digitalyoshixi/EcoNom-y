@@ -1,6 +1,8 @@
 import streamlit as st
 import sys
 import os
+import bcrypt
+
 sys.path.insert(1, 'utils')
 from database import get_supabase_api
 
@@ -27,7 +29,9 @@ def createProfile():
         validity = False
 
     if validity:
-        supabase_api.add_user(username,password,size)
+        salt = bcrypt.gensalt()
+        hashed_passwd = bcrypt.hashpw(bytes(password,'utf-8'), salt).decode("utf-8")
+        supabase_api.add_user(username,hashed_passwd,size)
     #communicates with database from here
 
 

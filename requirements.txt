@@ -5,3 +5,4 @@ supabase
 BeautifulSoup4
 lxml
 faust-cchardet
+bcrypt
