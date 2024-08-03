@@ -7,3 +7,4 @@ lxml
 faust-cchardet
 bcrypt
 json-repair
+jwt

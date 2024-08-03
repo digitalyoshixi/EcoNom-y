@@ -38,7 +38,14 @@ class SupabaseAPI:
             "family_members" : numfamily,
             "id" : max_id+1
         })
-    #def verify_user(self, username, password):
+
+    def add_token(self, username, token, expiration):
+        supabase_api.insert("tokens",{
+            "token" : token,
+            "profile" : username,
+            "expiry" : expiration
+        })
+    
 
 
 if __name__ == "__main__":
