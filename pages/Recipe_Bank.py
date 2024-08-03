@@ -180,3 +180,6 @@ with container:
     for i in range(len(st.session_state.recipes)):
         container.image(st.session_state.recipes[i], use_column_width = "always")
         container.button("Make Now", on_click = makeTheMeal, key= random.randint(1,10000000), use_container_width=True, args=(st.session_state.urls[i],st.session_state.images[i]))
+
+    if len(st.session_state.recipes) == 0:
+        st.write(":eyes:" + " Its empty here... Add your first recipe to get started!")
