@@ -6,6 +6,7 @@ st.subheader("Make a family profile and start saving your money and the environm
 def createProfile():
     username = st.session_state.un
     password = st.session_state.pw
+    
     size = st.session_state.family
     print("Username: " + username)
 

@@ -16,3 +16,4 @@ if __name__ == "__main__":
     api_key: str = os.environ["SUPABASE_API_KEY"]
 
     supabase_api = SupabaseAPI(project_url, api_key)
+    
