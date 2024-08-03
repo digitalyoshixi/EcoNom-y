@@ -9,8 +9,7 @@ from database import get_supabase_api
 supabase_api = get_supabase_api()
 # from utils.database import SupabaseAPI 
 
-print(st.session_state.token)
-signupmenu()
+
 
 def signupmenu():
     st.title("Create a profile")
@@ -43,3 +42,6 @@ def signupmenu():
         st.text_input("Password", key="pw", type = "password")
         st.text_input("Number of family members", key="family")
         st.form_submit_button("Create Account", on_click=createProfile)
+
+print(st.session_state.token)
+signupmenu()

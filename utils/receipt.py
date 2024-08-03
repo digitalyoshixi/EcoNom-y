@@ -2,7 +2,8 @@ import PIL
 import json_repair
 from gemini import GeminiAPI
 
-# IMAGE_PROMPT = """Parse this receipt for cooking ingredients and return the contents in JSON format. Ignore ALL non-food items.
+# IMAGE_PROMPT = """Parse this receipt for cooking ingredients and return
+# the contents in JSON format. Ignore ALL non-food items.
 
 # [
 #     {
@@ -14,6 +15,8 @@ from gemini import GeminiAPI
 #         "quantity": "#"
 #     }
 # ]"""
+
+IMAGE_PROMPT = "What do you see?"
 
 
 class ReceiptParser:
