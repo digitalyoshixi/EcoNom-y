@@ -1,18 +1,26 @@
 import streamlit as st
 import random
-from allrecipes import AllRecipes
-
-
+from utils.recipes import AllRecipesAPI
 
 @st.dialog("Add a new recipe!")
 def addNewRecipe():
     recipeName = st.text_input("Recipe Name:")
-    
+    if recipeName is not None:
     #Search for the recipe
-    searchResult = AllRecipes.search(recipeName)
-    main_recipe_url = searchResult[0]['url']
-    detailed_recipe = AllRecipes.get(main_recipe_url) 
+        all_recipes_api = AllRecipesAPI()
+        search_response = all_recipes_api.search_recipe("recipeName")
 
+        first_result = search_response[0]
+        recipe_name = first_result["name"]
+        recipe_url = first_result['url']
+        recipe_rating = first_result['rate']
+        recipe_image = first_result['image']
+
+        print(first_result)
+        print(f"{recipe_name=}, {recipe_url=}, {recipe_rating=}, {recipe_image=}")
+
+        recipe_information = all_recipes_api.get_recipe(first_result['url'])
+        print(recipe_information)
     
 
 @st.dialog("Here's a new recipe!")
