@@ -28,8 +28,7 @@ def createProfile():
 
     if validity:
         supabase_api.add_user(username,password,size)
-    #communicates with database from here
-
+        form.success("Account Created")
 
 with form:
     st.text_input("Username", key="un")
