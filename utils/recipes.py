@@ -26,8 +26,4 @@ if __name__ != "__main__":
     from .allrecipes import AllRecipes
 else:
     from allrecipes import AllRecipes
-
     all_recipes_api = AllRecipesAPI()
-    print(all_recipes_api.search_recipe('hotdog') != [])
-    print(all_recipes_api.get_recipe(
-        "https://www.allrecipes.com/recipe/16729/old-fashioned-potato-salad/") != {})
