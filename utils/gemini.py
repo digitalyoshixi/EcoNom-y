@@ -2,6 +2,10 @@ import google.generativeai as genai
 import os
 from PIL import Image, ImageFile
 
+# Suppress logging warnings
+os.environ["GRPC_VERBOSITY"] = "ERROR"
+os.environ["GLOG_minloglevel"] = "2"
+
 
 class GeminiAPI():
     def __init__(self, api_key: str) -> None:
@@ -31,13 +35,6 @@ class GeminiAPI():
 
 
 if __name__ == "__main__":
-    from dotenv import load_dotenv
-
-    # Load environment variables from .env
-    load_dotenv()
-
-    # Suppress logging warnings
-    os.environ["GRPC_VERBOSITY"] = "ERROR"
-    os.environ["GLOG_minloglevel"] = "2"
+    import load_env
 
     gemini_api = GeminiAPI(os.environ["GOOGLE_GEMINI_API_KEY"])
