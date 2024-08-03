@@ -1,13 +1,29 @@
 import streamlit as st
 import sys
+import bcrypt
+import datetime
+import jwt 
+
 sys.path.insert(1, 'utils')
 from database import get_supabase_api
+import load_env
+import os 
 
+JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
 supabase_api = get_supabase_api()
 
 st.title("Log into your EcoNom-y account")
 
 form = st.form('my_form')
+
+def create_jwt_token(user_id):
+    expiration = str(datetime.datetime.utcnow() + datetime.timedelta(hours=1))
+    payload = {
+        "user_id": user_id,
+        "exp": expiration
+    }
+    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
+    return token, expiration
 
 def login():
     username = st.session_state.un
@@ -24,8 +40,16 @@ def login():
 
     #communicates with database from here
     if filtered:
-        print(supabase_api.selectspecific("profiles","password","profile","bob"))
-        # supabase_api.select
+        dbpass = supabase_api.selectspecific("profiles","password","profile",username).data[0]["password"]
+        # If the passwords match
+        match = bcrypt.checkpw(bytes(password,'utf-8'), bytes(dbpass,'utf-8'))
+        # make a session cookie
+        jwt_token = create_jwt_token(username) 
+        token = jwt_token[0]
+        expiration = jwt_token[1]
+        st.session_state.token = token
+        supabase_api.add_token(username,token,expiration)
+
 
 with form:
     st.text_input("Username", key="un")
