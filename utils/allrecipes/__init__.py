@@ -119,6 +119,10 @@ class AllRecipes:
     def _get_nb_servings(self, times_data):
         return times_data.get("Servings:", "")
 
+    @staticmethod
+    def _get_description(soup):
+        return soup.select("p.article-subheading")[0].text
+
     def get(self, url):
         soup = self._fetch_page(url)
         times_data = self._get_times_data(soup)
@@ -132,6 +136,7 @@ class AllRecipes:
             {"name": "cook_time", "default_value": ""},
             {"name": "total_time", "default_value": ""},
             {"name": "nb_servings", "default_value": ""},
+            {"name": "description", "default_value": ""},
         ]
 
         data = {"url": url}
