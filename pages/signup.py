@@ -32,8 +32,7 @@ def createProfile():
         salt = bcrypt.gensalt()
         hashed_passwd = bcrypt.hashpw(bytes(password,'utf-8'), salt).decode("utf-8")
         supabase_api.add_user(username,hashed_passwd,size)
-    #communicates with database from here
-
+        form.success("Account Created")
 
 with form:
     st.text_input("Username", key="un")
