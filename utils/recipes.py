@@ -1,4 +1,4 @@
-from allrecipes import AllRecipes
+from .allrecipes import AllRecipes
 
 
 class AllRecipesAPI:
