@@ -34,6 +34,10 @@ if __name__ == "__main__":
     
     # Load environment variables from .env
     load_dotenv()
+
+    # Suppress logging warnings
+    os.environ["GRPC_VERBOSITY"] = "ERROR"
+    os.environ["GLOG_minloglevel"] = "2"
     
     gemini_api = GeminiAPI(os.environ["GOOGLE_GEMINI_API_KEY"])
 
