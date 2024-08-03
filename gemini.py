@@ -5,10 +5,15 @@ import os
 class GeminiAPI():
     def __init__(self, key):
         self.key = key
+        genai.configure(api_key=key)
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
     
-    def recimg(self, imgobj):
-        GOOGLE_API_KEY=userdata.get('GOOGLE_API_KEY')
-        genai.configure(api_key=GOOGLE_API_KEY)
+    def resimg(self, imgobj):
+        print("")
+
+    def restxt(self, text):
+        response = self.model.generate_content(text)
+        print(response)
 
 
 if __name__ == "__main__":
@@ -16,3 +21,4 @@ if __name__ == "__main__":
     load_dotenv()
     key = os.environ["GOOGLE_API_KEY"]
     geminiapi = GeminiAPI(key)
+    geminiapi.restxt("can u twerk")
