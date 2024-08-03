@@ -30,15 +30,15 @@ with mealFeedback:
     #     text = "How filling was the meal for your family?"
 
     st.write(text)
-    feedback = st.feedback(options="faces")
-    feedbackMapping = [
-        "still pretty hungry 😤",
-        "a little bit hungry but manageable",
-        "perfectly satisfied",
-        "a little too much",
-        "way too much food 😡"]
+    feedback = st.selectbox(text, 
+        ["way too little food!" + "😔",
+        "not enough food but it's manageable.",
+        "the perfect amount of food!" + "😁",
+        "a little too much food.",
+        "way too much food" + "😡"],index=None)
+  
     if feedback is not None:
-        st.markdown(f"You feel *{feedbackMapping[feedback]}*")
+        st.markdown(f"This time there was *{feedback}*")
 
 
 # image upload (picture of your meal)
