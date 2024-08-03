@@ -89,7 +89,7 @@ class AllRecipes:
                     index + 1)}
 
             if img_element:
-                step_data['picture'] = img_element['data-srcset']
+                step_data['picture'] = img_element['data-src']
 
             steps.append(step_data)
 
