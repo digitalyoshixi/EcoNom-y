@@ -14,22 +14,13 @@ class AllRecipesAPI:
         """
         return self.recipe_scraper.search(query)
 
-    def get_random_cuisine(self) -> list[str, str]:
-        """
-        Returns a random cuisine, and the link to the AllRecipes page for it.
-        """
-        soup = self.recipe_scraper._fetch_page(
-            "https://www.allrecipes.com/cuisine-a-z-6740455")
-
-        cuisines = soup.select("a.mntl-link-list__link")
-        random_cuisine = random.choice(cuisines)
-
-        return random_cuisine.text, random_cuisine['href']
-
     def random_recipes(self) -> list[dict]:
-        _cuisine, cuisine_link = self.get_random_cuisine()
-        soup = self.recipe_scraper._fetch_page(cuisine_link)
-        return self.recipe_scraper._extract_articles(soup)
+        """
+        Fetches a list of recipies for a random cuisine.
+
+        Same response format as search_recipe.
+        """
+        return self.recipe_scraper.random_recipes()
 
     def get_recipe(self, recipe_url: str) -> dict:
         """
@@ -46,3 +37,7 @@ if __name__ != "__main__":
 else:
     from allrecipes import AllRecipes
     all_recipes_api = AllRecipesAPI()
+    # print(all_recipes_api.search_recipe('hotdog') != [])
+    # print(all_recipes_api.get_recipe(
+    #     "https://www.allrecipes.com/recipe/16729/old-fashioned-potato-salad/") != {})
+    print(all_recipes_api.random_recipes())
