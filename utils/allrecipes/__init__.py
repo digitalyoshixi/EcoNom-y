@@ -4,7 +4,7 @@ import requests
 import random
 import lxml
 import cchardet
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, SoupStrainer
 
 
 class AllRecipes:
@@ -17,8 +17,9 @@ class AllRecipes:
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"}
 
     def _fetch_page(self, url, params=None):
+        only_article = SoupStrainer("article")
         response = self.session.get(url, params=params)
-        return BeautifulSoup(response.text, 'lxml')
+        return BeautifulSoup(response.text, 'lxml', parse_only=only_article)
 
     def _parse_article(self, article):
         data = {}
@@ -62,55 +63,66 @@ class AllRecipes:
 
     @staticmethod
     def _get_name(soup):
-        return soup.find(
-            "h1", {"id": "article-heading_2-0"}).get_text(strip=True)
+        return soup.select("h1.article-heading")[0].get_text(strip=True)
 
     @staticmethod
     def _get_rating(soup):
-        return float(soup.find(
-            "div", {"id": "mntl-recipe-review-bar__rating_2-0"}).get_text(strip=True))
+        return float(soup.select(
+            "div.mm-recipes-review-bar__rating")[0].get_text(strip=True))
 
     @staticmethod
     def _get_ingredients(soup):
-        return [
-            li.get_text(
-                strip=True) for li in soup.find(
-                "div", {
-                    "id": "mntl-structured-ingredients_1-0"}).find_all("li")]
+        return [li.get_text().strip() for li in soup.select(
+            "ul.mm-recipes-structured-ingredients__list")[0].find_all("li")]
 
     @staticmethod
     def _get_steps(soup):
-        return [
-            li.get_text(
-                strip=True) for li in soup.find(
-                "div", {
-                    "id": "recipe__steps_1-0"}).find_all("li")]
+        steps = []
+        for index, step in enumerate(soup.select(
+                "div.mm-recipes-steps__content")[0].select("li")):
+            task = step.find("p").text.strip()
+            img_element = step.find("img")
+
+            step_data = {
+                "task": task,
+                "step": str(
+                    index + 1)}
+
+            if img_element:
+                step_data['picture'] = img_element['data-srcset']
+
+            steps.append(step_data)
+
+        return steps
 
     @staticmethod
-    def _get_times_data(soup, text):
-        return soup.find("div",
-                         {"id": "recipe-details_1-0"}).find("div",
-                                                            text=text).parent.find("div",
-                                                                                   {"class": "mntl-recipe-details__value"}).get_text(strip=True)
+    def _get_times_data(soup):
+        information_dict = {}
+        for item in soup.select("div.mm-recipes-details__item"):
+            label = item.find(
+                "div", {
+                    "class": "mm-recipes-details__label"}).text.strip()
+            value = item.find("div", {"class": "mm-recipes-details__value"})
+            information_dict[label] = value.get_text(
+                strip=True) if value else ""
+        return information_dict
 
-    @classmethod
-    def _get_prep_time(cls, soup):
-        return cls._get_times_data(soup, "Prep Time:")
+    def _get_prep_time(self, times_data):
+        return times_data.get("Prep Time:", "")
 
-    @classmethod
-    def _get_cook_time(cls, soup):
-        return cls._get_times_data(soup, "Cook Time:")
+    def _get_cook_time(self, times_data):
+        return times_data.get("Cook Time:", "")
 
-    @classmethod
-    def _get_total_time(cls, soup):
-        return cls._get_times_data(soup, "Total Time:")
+    def _get_total_time(self, times_data):
+        return times_data.get("Total Time:", "")
 
-    @classmethod
-    def _get_nb_servings(cls, soup):
-        return cls._get_times_data(soup, "Servings:")
+    def _get_nb_servings(self, times_data):
+        return times_data.get("Servings:", "")
 
     def get(self, url):
         soup = self._fetch_page(url)
+        times_data = self._get_times_data(soup)
+
         elements = [
             {"name": "name", "default_value": ""},
             {"name": "ingredients", "default_value": []},
@@ -125,8 +137,16 @@ class AllRecipes:
         data = {"url": url}
         for element in elements:
             try:
-                data[element["name"]] = getattr(
-                    self, f"_get_{element['name']}")(soup)
+                if element["name"] in [
+                    "prep_time",
+                    "cook_time",
+                    "total_time",
+                        "nb_servings"]:
+                    data[element["name"]] = getattr(
+                        self, f"_get_{element['name']}")(times_data)
+                else:
+                    data[element["name"]] = getattr(
+                        self, f"_get_{element['name']}")(soup)
             except Exception:
                 data[element["name"]] = element["default_value"]
 
