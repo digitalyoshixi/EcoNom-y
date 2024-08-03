@@ -7,18 +7,18 @@ class GeminiAPI():
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-1.5-flash')
     
-    def resimg(self, prompt: str, img: ImageFile) -> str:
+    def image_response(self, prompt: str, image: ImageFile) -> str:
         """
         Sends an image object and prompt to Google Gemini, returns the response.
         
         Parameters:
             prompt: The prompt to send Gemini.
-            imgobj: An image object given by PIL.Image.open
+            image: An image object given by PIL.Image.open.
         """
-        response = self.model.generate_content([prompt, img])
+        response = self.model.generate_content([prompt, image])
         return response.text
 
-    def restxt(self, prompt: str) -> str:
+    def text_response(self, prompt: str) -> str:
         """
         Sends a prompt to Google Gemini, returns the response.
 
@@ -42,5 +42,5 @@ if __name__ == "__main__":
     gemini_api = GeminiAPI(os.environ["GOOGLE_GEMINI_API_KEY"])
 
     testimg = Image.open('testgemini.png')
-    response = gemini_api.resimg(testimg,"what do u think about this?")
+    response = gemini_api.image_response(testimg,"what do u think about this?")
     print(response)
