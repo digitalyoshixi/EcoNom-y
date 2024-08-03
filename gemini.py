@@ -1,6 +1,6 @@
 import google.generativeai as genai
 import os
-    
+import PIL.Image
 
 class GeminiAPI():
     def __init__(self, key):
@@ -8,11 +8,13 @@ class GeminiAPI():
         genai.configure(api_key=key)
         self.model = genai.GenerativeModel('gemini-1.5-flash')
     
-    def resimg(self, imgobj):
-        print("")
+    def resimg(self, prompt, img):
+        # assuming imgobj is created like img = PIL.Image.open('image.jpg')
+        response = self.model.generate_content([prompt, img])
+        print(response)
 
-    def restxt(self, text):
-        response = self.model.generate_content(text)
+    def restxt(self, prompt):
+        response = self.model.generate_content(prompt)
         print(response)
 
 
@@ -21,4 +23,5 @@ if __name__ == "__main__":
     load_dotenv()
     key = os.environ["GOOGLE_API_KEY"]
     geminiapi = GeminiAPI(key)
-    geminiapi.restxt("can u twerk")
+    testimg = PIL.Image.open('testgemini.png')
+    geminiapi.resimg(testimg,"what do u think about this?")
