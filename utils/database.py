@@ -3,6 +3,17 @@ import supabase
 import uuid
 
 
+supabase_api = None
+def get_supabase_api():
+    global supabase_api
+    if supabase_api is None:
+        # Create a new connection if it doesn't exist
+        import load_env
+        project_url: str = os.environ["SUPABASE_PROJECT_URL"]
+        api_key: str = os.environ["SUPABASE_API_KEY"]
+        supabase_api = SupabaseAPI(project_url, api_key)
+    return supabase_api
+
 class SupabaseAPI:
     database: supabase.Client
 
@@ -11,6 +22,9 @@ class SupabaseAPI:
 
     def select(self, table, columns):
         return supabase_api.database.table(table).select(columns).execute()
+
+    def selectspecific(self, table, columns, eqcol, eqval): # SELECT <column> from <table> where <eqcol> = <eqval>
+        return supabase_api.database.table(table).select(columns).eq(eqcol,eqval).execute()
 
     def insert(self, table, keymap):
         supabase_api.database.table(table).insert(keymap).execute()
