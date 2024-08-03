@@ -22,9 +22,12 @@ if __name__ == "__main__":
 
     supabase_api = SupabaseAPI(project_url, api_key)
     #print(supabase_api.database.table("profiles").select("*").execute())
+    result = supabase_api.database.table("profiles").select("id").order("id", desc=True).limit(1).execute()
+    max_id = result.data[0]['id'] if result.data else 0
+    
     supabase_api.insert("profiles",{
         "profile" : "daniel",
         "password" : "password123",
         "family_members" : 20,
-        "id" : 
+        "id" : max_id+1
        })
