@@ -78,12 +78,13 @@ def addNewRecipe():
                  
 @st.dialog("Here's a new recipe!")
 def recommendRecipe():
-    search_response = all_recipes_api.search_recipe()
+    search_response = all_recipes_api.random_recipes()
 
     try:
         first_result = search_response[0]
     except:
         pass
+
     recipe_name = first_result["name"]
     recipe_url = first_result['url']
     recipe_rating = first_result['rate']
@@ -122,6 +123,7 @@ def recommendRecipe():
         
     st.write("URL: ", recipe_url)
 
+    col1, col2 = st.columns(2)
     with col1:
         makeThis = st.button("Make this Recipe!", type="primary")
         if makeThis:
