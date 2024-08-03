@@ -1,4 +1,7 @@
 import requests
 
-def sendreq():
-    print("test")
+def imagenanalysis(inp):
+    print("balls")
+
+def textanalysis(inp):
+    print("balls")
