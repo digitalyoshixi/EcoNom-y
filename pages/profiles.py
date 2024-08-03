@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.database import SupabaseAPI 
 
 st.title("Create a profile")
 st.subheader("Make a family profile and start saving your money and the environment")

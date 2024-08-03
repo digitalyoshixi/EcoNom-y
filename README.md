@@ -23,7 +23,8 @@ cp .env.example .env  # Copy .env.example to .env
 vim .env  # Add a Gemini API key to .env
 ```
 
-See the [docs](https://ai.google.dev/gemini-api/docs/api-key) for information on how to create an API key.
+See the Google Gemini [docs](https://ai.google.dev/gemini-api/docs/api-key) for information on how to create an API key.
+Create a project on [Supabase](https://supabase.com) for access to the Project URL and Project API key.
 
 ### Run the Server
 
