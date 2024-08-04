@@ -6,10 +6,10 @@ from utils.recipes import AllRecipesAPI
 #setting up subabase API
 from utils.database import get_supabase_api
 supabaseAPI = get_supabase_api()
+
+
 all_recipes_api = AllRecipesAPI()
 
-def subtractIngredients():
-    pass
 
 #function used to add a new recipe to the user's recipe bank
 @st.dialog("Add a new recipe!")

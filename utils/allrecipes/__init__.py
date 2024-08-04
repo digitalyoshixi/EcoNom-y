@@ -50,6 +50,26 @@ class AllRecipes:
         soup = self._fetch_page(url, params={"q": search_string})
         return self._extract_articles(soup)
 
+    def get_random_cuisine(self) -> list[str, str]:
+        """
+        Returns a random cuisine, and the link to the AllRecipes page for it.
+        """
+        soup = self._fetch_page(
+            "https://www.allrecipes.com/cuisine-a-z-6740455")
+
+        cuisines = soup.select("a.mntl-link-list__link")
+        random_cuisine = random.choice(cuisines)
+
+        return random_cuisine.text, random_cuisine['href']
+
+    def random_recipes(self) -> list[dict]:
+        """
+        Fetches a list of recipies for a random cuisine.
+        """
+        _cuisine, cuisine_link = self.get_random_cuisine()
+        soup = self._fetch_page(cuisine_link)
+        return self._extract_articles(soup)
+
     def homepage(self):
         pages = [
             "/recipes/84/healthy-recipes",
