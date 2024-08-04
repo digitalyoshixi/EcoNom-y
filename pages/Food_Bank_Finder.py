@@ -1,12 +1,19 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
+from utils.food_banks import FoodBanks
 
-df = pd.DataFrame(
-    np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
-    columns=['lat', 'lon'])
+#flat, flng
+food_banks = FoodBanks()
+query = food_banks.locate_food_banks("Toronto Metropolitian University")
+
+
+df = pd.DataFrame({
+    "col1": [query['closest_food_banks'][0]['flat'], query['closest_food_banks'][1]['flat']],
+    "col2": [query['closest_food_banks'][0]['flng'], query['closest_food_banks'][1]['flng']]})
 
 st.title("Food Banks Nearby")
 st.subheader("Donate unwanted ingredients")
 
-st.map()
+st.map(df,
+    latitude='col1',
+    longitude='col2')

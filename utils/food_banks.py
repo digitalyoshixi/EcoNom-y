@@ -1,4 +1,6 @@
 import requests
+import streamlit as st
+import pandas as pd
 
 
 class FoodBanks:
@@ -49,5 +51,6 @@ class FoodBanks:
 if __name__ == "__main__":
     food_banks = FoodBanks()
     query = food_banks.locate_food_banks("Toronto Metropolitian University")
-    print("The closest food bank is " +
-          query['closest_food_banks'][0]['cname'])
+    print(
+          query['closest_food_banks'][0])
+
