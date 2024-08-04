@@ -1,10 +1,12 @@
-import utils.require_auth
-from utils.show_sidebar import show_sidebar
-
-show_sidebar()
 import streamlit as st
 import pandas as pd
+from utils.auth import require_auth
+
+require_auth()
 from utils.food_banks import FoodBanks
+from utils.sidebar import show_sidebar
+
+show_sidebar()
 
 food_banks = FoodBanks()
 

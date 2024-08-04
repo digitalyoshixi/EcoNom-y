@@ -2,6 +2,15 @@ import streamlit as st
 from datetime import datetime
 from extra_streamlit_components import CookieManager
 
+cookie_manager = None
+
+
+def get_cookie_manager():
+    global cookie_manager
+    if cookie_manager == None:
+        cookie_manager = CookieManagerAPI()
+    return cookie_manager
+
 
 class CookieManagerAPI:
     def __init__(self):

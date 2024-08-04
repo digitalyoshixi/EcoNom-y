@@ -6,6 +6,15 @@ from PIL import Image, ImageFile
 os.environ["GRPC_VERBOSITY"] = "ERROR"
 os.environ["GLOG_minloglevel"] = "2"
 
+gemini_api = None
+
+
+def get_gemini_api():
+    global gemini_api
+    if gemini_api is None:
+        gemini_api = GeminiAPI(os.environ["GOOGLE_GEMINI_API_KEY"])
+    return gemini_api
+
 
 class GeminiAPI:
     def __init__(self, api_key: str) -> None:

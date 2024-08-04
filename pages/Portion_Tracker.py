@@ -1,5 +1,7 @@
-import utils.require_auth
-from utils.show_sidebar import show_sidebar
+from utils.auth import require_auth
+
+require_auth()
+from utils.sidebar import show_sidebar
 
 show_sidebar()
 import streamlit as st

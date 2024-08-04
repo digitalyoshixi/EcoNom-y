@@ -1,5 +1,5 @@
 import utils.load_env
-from utils.show_sidebar import show_sidebar
+from utils.sidebar import show_sidebar
 
 show_sidebar()
 import streamlit as st

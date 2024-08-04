@@ -1,6 +1,6 @@
 import PIL
 import json_repair
-from gemini import GeminiAPI
+from .gemini import GeminiAPI, get_gemini_api
 
 IMAGE_PROMPT = """Parse this receipt for the items and return them in JSON format. Only look for food items that you know of, and return the ingredient in it's simplest format.
 
@@ -20,8 +20,8 @@ JSON Format:
 class ReceiptParser:
     gemini_api: GeminiAPI
 
-    def __init__(self, gemini_api_key: str):
-        self.gemini_api = GeminiAPI(gemini_api_key)
+    def __init__(self):
+        self.gemini_api = get_gemini_api()
 
     def parse_receipt(self, receipt: PIL.ImageFile) -> list[dict[str, str]]:
         f"""
@@ -40,9 +40,8 @@ class ReceiptParser:
 
 if __name__ == "__main__":
     import load_env
-    import os
 
-    receipt_parser = ReceiptParser(os.environ["GOOGLE_GEMINI_API_KEY"])
+    receipt_parser = ReceiptParser()
 
     import requests
     from PIL import Image

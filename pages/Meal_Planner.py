@@ -1,315 +1,229 @@
 import streamlit as st
 import random
+import math
 from utils.database import get_supabase_api
 from utils.recipes import AllRecipesAPI
-from utils.show_sidebar import show_sidebar
+from utils.auth import require_auth, is_logged_in
+from utils.sidebar import show_sidebar
 
 show_sidebar()
 
+# Initialize APIs
+require_auth()
 supabaseAPI = get_supabase_api()
 all_recipes_api = AllRecipesAPI()
 
 
-# function used to add a new recipe to the user's recipe bank
-@st.dialog("Add a new recipe!")
-def addNewRecipe():
-    recipeName = st.text_input("Recipe Name:")
-
-    if recipeName is not None:
-        # Search for the recipe
-        search_response = all_recipes_api.search_recipe(recipeName)
-
-        if recipeName != "":
-            try:
-                first_result = search_response[0]
-            except:
-                st.error("Please try again")
-            recipe_name = first_result["name"]
-            recipe_url = first_result["url"]
-            recipe_rating = first_result["rate"]
-            recipe_image = first_result["image"]
-            recipe_information = all_recipes_api.get_recipe(first_result["url"])
-
-            st.title(recipe_name)
-
-            st.image(recipe_image, use_column_width="always")
-
-            with st.container():
-                if recipe_rating != None:
-                    rating = ""
-                    try:
-                        for i in range(recipe_rating):
-                            rating += ":star:"
-                        st.write("Rating: " + rating)
-                    except:
-                        pass
-
-            supabaseIngredientsList = []
-
-            with st.container():
-                st.subheader("Ingredients: ")
-                ingredientsList = ""
-                for i in range(len(recipe_information["ingredients"])):
-                    supabaseIngredientsList.append(recipe_information["ingredients"][i])
-                    supabaseIngredientsList.append(recipe_information["ingredients"][i])
-                    ingredientsList += (
-                        str(i + 1)
-                        + ". "
-                        + recipe_information["ingredients"][i]
-                        + "\n\n"
-                    )
-                st.write(ingredientsList)
-
-            ingredientsString = ", ".join(supabaseIngredientsList)
-
-            with st.expander("Not happy with the ingredients?"):
-                st.write("previous ingredients")
-                ingredientsList = st.text_input(
-                    value=ingredientsString, label="Change them here: "
-                )
-                supabaseIngredientsList = ingredientsList.split(",")
-
-            with st.container():
-                st.subheader("Steps")
-                for i in range(len(recipe_information["steps"])):
-                    st.write(
-                        str(i + 1)
-                        + ". "
-                        + recipe_information["steps"][i]["task"]
-                        + "\n\n"
-                    )
-                    if "picture" in recipe_information["steps"][i]:
-                        st.image(
-                            recipe_information["steps"][i]["picture"],
-                            use_column_width="always",
-                        )
-
-            st.write("URL: ", recipe_url)
-
-            add = st.button("Add this Recipe!", type="primary")
-            if add:
-                # checks if user already added this recipe
-                if (
-                    len(
-                        supabaseAPI.selectspecific(
-                            "recipes", "recipeURL", "recipeURL", recipe_url
-                        ).data
-                    )
-                    != 0
-                ):
-                    supabaseAPI.add_recipe(
-                        recipe_name,
-                        {"ingredients": supabaseIngredientsList},
-                        recipe_image,
-                        100,
-                        recipe_url,
-                    )
-                    st.session_state.urls.append(recipe_url)
-                    st.session_state.images.append(recipe_image)
-                    st.rerun()
-                else:
-                    st.session_state.urls.append(recipe_url)
-                    st.session_state.images.append(recipe_image)
-                    st.rerun()
-
-
-# function that recommends the user a new recipe
-@st.dialog("Here's a new recipe!")
-def recommendRecipe():
-    search_response = all_recipes_api.random_recipes()
-
-    try:
-        first_result = search_response[0]
-    except:
-        pass
-
-    recipe_name = first_result["name"]
-    recipe_url = first_result["url"]
-    recipe_rating = first_result["rate"]
-    recipe_image = first_result["image"]
-    recipe_information = all_recipes_api.get_recipe(first_result["url"])
-
-    st.title(recipe_name)
-
+def display_recipe_info(recipe_information, recipe_image, recipe_rating):
+    st.title(recipe_information["name"])
     st.image(recipe_image, use_column_width="always")
 
     with st.container():
-        if recipe_rating != None:
-            rating = ""
-            try:
-                for i in range(recipe_rating):
-                    rating += ":star:"
-                st.write("Rating: " + rating)
-            except:
-                pass
+        if recipe_rating:
+            rating = ":star:" * math.floor(recipe_rating)
+            st.write(f"Rating: {rating}")
 
-    supabaseIngredientsList = []
+    st.subheader("Ingredients")
+    ingredients = recipe_information["ingredients"]
+    ingredients_list = "\n\n".join(
+        [f"{i + 1}. {ingredient}" for i, ingredient in enumerate(ingredients)]
+    )
+    st.write(ingredients_list)
 
-    with st.container():
-        st.subheader("Ingredients: ")
-        ingredientsList = ""
-        for i in range(len(recipe_information["ingredients"])):
-            supabaseIngredientsList.append(recipe_information["ingredients"][i])
-            ingredientsList += (
-                str(i + 1) + ". " + recipe_information["ingredients"][i] + "\n\n"
+    st.subheader("Steps")
+    for i, step in enumerate(recipe_information["steps"]):
+        st.write(f"{i + 1}. {step['task']}\n\n")
+        if "picture" in step:
+            st.image(step["picture"], use_column_width="always")
+
+    return ingredients
+
+
+def add_recipe_to_db(
+    recipe_name, supabase_ingredients_list, recipe_image, recipe_url, username
+):
+    supabaseAPI.add_recipe(
+        recipe_name,
+        supabase_ingredients_list,
+        recipe_image,
+        100,
+        recipe_url,
+        username,
+    )
+
+
+@st.dialog("Add a new recipe!")
+def add_new_recipe():
+    recipe_name = st.text_input("Recipe Name:")
+    if recipe_name:
+        search_response = all_recipes_api.search_recipe(recipe_name)
+        if not search_response:
+            st.error("Please try again")
+            return
+
+        first_result = search_response[0]
+        recipe_information = all_recipes_api.get_recipe(first_result["url"])
+
+        ingredients = display_recipe_info(
+            recipe_information, first_result["image"], first_result["rate"]
+        )
+        ingredients_string = ", ".join(ingredients)
+
+        with st.expander("Not happy with the ingredients?"):
+            st.write("Previous ingredients")
+            ingredients_string = st.text_input(
+                value=ingredients_string, label="Change them here:"
             )
-        st.write(ingredientsList)
+            ingredients = ingredients_string.split(",")
 
-    ingredientsString = ", ".join(supabaseIngredientsList)
+        st.write("URL: ", first_result["url"])
+
+        if st.button("Add this Recipe!", type="primary"):
+            if not supabaseAPI.selectspecific(
+                "recipes", "recipeURL", "recipeURL", first_result["url"]
+            ).data:
+                # get username from webtoken
+                username = is_logged_in()
+                add_recipe_to_db(
+                    first_result["name"],
+                    ingredients,
+                    first_result["image"],
+                    first_result["url"],
+                    username,
+                )
+                st.session_state.urls.append(first_result["url"])
+                st.session_state.images.append(first_result["image"])
+            st.rerun()
+
+
+@st.dialog("Here's a new recipe!")
+def recommend_recipe():
+    search_response = all_recipes_api.random_recipes()
+    if not search_response:
+        st.error("No recipes found.")
+        return
+
+    first_result = search_response[0]
+    recipe_information = all_recipes_api.get_recipe(first_result["url"])
+
+    ingredients = display_recipe_info(
+        recipe_information, first_result["image"], first_result["rate"]
+    )
+    ingredients_string = ", ".join(ingredients)
 
     with st.expander("Not happy with the ingredients?"):
-        st.write("previous ingredients")
-        ingredientsList = st.text_input(
-            value=ingredientsString, label="Change them here: "
+        st.write("Previous ingredients")
+        ingredients_string = st.text_input(
+            value=ingredients_string, label="Change them here:"
         )
-        supabaseIngredientsList = ingredientsList.split(",")
+        ingredients = ingredients_string.split(",")
 
-    with st.container():
-        st.subheader("Steps")
-        steps = ""
-        for i in range(len(recipe_information["steps"])):
-            st.write(
-                str(i + 1) + ". " + recipe_information["steps"][i]["task"] + "\n\n"
+    st.write("URL: ", first_result["url"])
+
+    if st.button("Add this Recipe!", type="primary"):
+        if not supabaseAPI.selectspecific(
+            "recipes", "recipeURL", "recipeURL", first_result["url"]
+        ).data:
+            add_recipe_to_db(
+                first_result["name"],
+                ingredients,
+                first_result["image"],
+                first_result["url"],
             )
-            if "picture" in recipe_information["steps"][i]:
-                st.image(
-                    recipe_information["steps"][i]["picture"], use_column_width="always"
+            st.session_state.urls.append(first_result["url"])
+            st.session_state.images.append(first_result["image"])
+        st.rerun()
+
+
+@st.dialog("Let's do this!")
+def make_the_meal(recipe_url, recipe_image_url):
+    recipe_information = all_recipes_api.get_recipe(recipe_url)
+    display_recipe_info(
+        recipe_information, recipe_image_url, recipe_information.get("rate")
+    )
+
+    if st.button("Made the Meal!", type="primary"):
+        st.subheader("Rate Your Meal!")
+        feedback_options = [
+            "way too little food! 😔",
+            "not enough food but it's manageable.",
+            "the perfect amount of food! 😁",
+            "a little too much food.",
+            "way too much food 😡",
+        ]
+        feedback = st.selectbox(
+            "How filling was the meal for your family?", feedback_options
+        )
+
+        if feedback:
+            old_value = supabaseAPI.selectspecific(
+                "recipes", "portionMultiplier", "recipeURL", recipe_url
+            ).data[0]["portionMultiplier"]
+            supabaseAPI.update_cell(
+                "recipes",
+                "portionMultiplier",
+                old_value,
+                "portionMultiplier",
+                old_value + 1,
+            )
+            feedback_index = feedback_options.index(feedback)
+            if feedback_index == 0:
+                supabaseAPI.update_cell(
+                    "recipes",
+                    "portionMultiplier",
+                    old_value + 30,
+                    "recipeURL",
+                    recipe_url,
                 )
 
-    st.write("URL: ", recipe_url)
 
-    add = st.button("Add this Recipe!", type="primary")
-    if add:
-        if (
-            supabaseAPI.selectspecific(
-                "recipes", "recipeURL", "recipeURL", recipe_url
-            ).count
-            == 0
-        ):
-            supabaseAPI.add_recipe(
-                recipe_name,
-                {"ingredients": supabaseIngredientsList},
-                recipe_image,
-                100,
-                recipe_url,
-            )
-            st.session_state.urls.append(recipe_url)
-            st.session_state.images.append(recipe_image)
-            st.rerun()
-        else:
-            st.session_state.urls.append(recipe_url)
-            st.session_state.images.append(recipe_image)
-            st.rerun()
+def remove_recipe(recipe_url, recipe_image):
+    st.session_state.urls.remove(recipe_url)
+    st.session_state.images.remove(recipe_image)
 
 
-@st.dialog("Lets do this!")
-def makeTheMeal(recipeURL, recipeImageURL):
-    search_response = all_recipes_api.get_recipe(recipeURL)
-    recipe_name = search_response["name"]
+def main():
+    st.title("Meal Planner")
 
-    st.title(recipe_name)
-    st.image(recipeImageURL, use_column_width="always")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Add Recipe", type="primary", use_container_width=True):
+            add_new_recipe()
+    with col2:
+        if st.button("Recommend Recipe", type="primary", use_container_width=True):
+            recommend_recipe()
 
-    with st.container():
-        st.subheader("Ingredients: ")
-        ingredientsList = ""
-        for i in range(len(search_response["ingredients"])):
-            ingredientsList += (
-                str(i + 1) + ". " + search_response["ingredients"][i] + "\n\n"
-            )
-        st.write(ingredientsList)
-
-    with st.container():
-        st.subheader("Steps")
-        steps = ""
-        for i in range(len(search_response["steps"])):
-            st.write(str(i + 1) + ". " + search_response["steps"][i]["task"] + "\n\n")
-            if "picture" in search_response["steps"][i]:
-                st.image(search_response["steps"][i]["picture"])
-
-    st.write("URL: ", recipeURL)
-
-    done = st.button("Made the Meal!", type="primary")
-    if done:
-        with st.container():
-            st.subheader("Rate Your Meal!")
-            option = [
-                "How filling was the meal for your family?",
-                "way too little food!" + "😔",
-                "not enough food but it's manageable.",
-                "the perfect amount of food!" + "😁",
-                "a little too much food.",
-                "way too much food" + "😡",
-            ]
-            feedback = st.selectbox(
-                "How filling was the meal for your family?", option, index=None
-            )
-        # SELECT <column> from <table> where <eqcol> = <eqval>
-        print(supabaseAPI.select("recipes", "*"))
-        oldvalue = supabaseAPI.selectspecific(
-            "recipes", "portionMultiplier", "recipeURL", recipeURL
-        )
-        print(oldvalue)
-        oldvalue = oldvalue.data[0]["portionMultiplier"]
-        supabaseAPI.update_cell(
-            "recipes", "imageURL", oldvalue, "portionMultiplier", oldvalue + 1
-        )
-
-        if option.index(feedback) == 0:
-            supabaseAPI.update_cell(
-                "recipes", "imageURL", oldvalue, "portionMultiplier", oldvalue + 30
-            )
-        elif option.index(feedback) == 1:
-            pass
-        elif option.index(feedback) == 2:
-            pass
-        elif option.index(feedback) == 3:
-            pass
-        elif option.index(feedback) == 4:
-            pass
-
-
-def removeRecipe(recipeURL, recipeImage):
-    st.session_state.urls.remove(recipeURL)
-    st.session_state.images.remove(recipeImage)
-
-
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("Add Recipe", type="primary", use_container_width=True):
-        addNewRecipe()
-with col2:
-    if st.button("Recommend Recipe", type="primary", use_container_width=True):
-        recommendRecipe()
-
-container = st.container(border=True)
-with container:
+    container = st.container()
     if "urls" not in st.session_state:
         st.session_state.urls = []
         st.session_state.images = []
 
-    for i in range(len(st.session_state.urls)):
-        container.image(st.session_state.images[i], use_column_width="always")
-
-        col1, col2 = st.columns(2)
+    for i, (url, image) in enumerate(
+        zip(st.session_state.urls, st.session_state.images)
+    ):
+        container.image(image, use_column_width="always")
+        col1, col2 = container.columns(2)
         with col1:
             container.button(
                 "Make Now",
-                on_click=makeTheMeal,
+                on_click=make_the_meal,
                 key=random.randint(1, 10000000),
                 use_container_width=True,
                 type="primary",
-                args=(st.session_state.urls[i], st.session_state.images[i]),
+                args=(url, image),
             )
-
         with col2:
             container.button(
                 "Remove Recipe",
-                on_click=removeRecipe,
+                on_click=remove_recipe,
                 use_container_width=True,
-                args=(st.session_state.urls[i], st.session_state.images[i]),
+                args=(url, image),
                 key=random.randint(1, 1000000),
             )
 
-    if len(st.session_state.urls) == 0:
-        st.write(":eyes:" + " Its empty here... Add your first recipe to get started!")
+    if not st.session_state.urls:
+        st.write(":eyes: It's empty here... Add your first recipe to get started!")
+
+
+if __name__ == "__main__":
+    main()

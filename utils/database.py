@@ -1,5 +1,6 @@
 import os
 import datetime
+import bcrypt
 import jwt
 import supabase
 
@@ -42,22 +43,26 @@ class SupabaseAPI:
     def insert(self, table, keymap):
         supabase_api.database.table(table).insert(keymap).execute()
 
-    def add_user(self, username, password, numfamily):
-        result = (
+    def create_user(self, username, password, numfamily):
+        existing_account = (
             supabase_api.database.table("profiles")
             .select("id")
-            .order("id", desc=True)
-            .limit(1)
+            .eq("username", username)
             .execute()
+            .data
         )
-        max_id = result.data[0]["id"] if result.data else 0
+        print(existing_account)
+
+        if existing_account:
+            raise Exception("An account already exists with this username.")
+
+        hashed_password = self.hash_password(password)
         supabase_api.insert(
             "profiles",
             {
-                "profile": username,
-                "password": password,
+                "username": username,
+                "password": hashed_password,
                 "family_members": numfamily,
-                "id": max_id + 1,
             },
         )
 
@@ -67,7 +72,13 @@ class SupabaseAPI:
         )
 
     def add_recipe(
-        self, recipeName, ingredientList, imageURL, portionMultiplier, recipeURL
+        self,
+        recipeName,
+        ingredientList,
+        imageURL,
+        portionMultiplier,
+        recipeURL,
+        username,
     ):
         supabase_api.insert(
             "recipes",
@@ -77,21 +88,28 @@ class SupabaseAPI:
                 "imageURL": imageURL,
                 "portionMultiplier": portionMultiplier,
                 "recipeURL": recipeURL,
+                "username": username,
             },
         )
 
-    def update_cell(self, table, oldcol, oldval, newcol, newval):
+    def update_cell(self, table, changecol, changeval, querycol, queryval):
         response = (
             supabase_api.database.table(table)
-            .update({newcol: newval})
-            .eq(oldcol, oldval)
+            .update({changecol: changeval})
+            .eq(querycol, queryval)
             .execute()
         )
 
         return response
 
+    def hash_password(self, password):
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+    def check_password(self, password, hashed_password):
+        return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
+
     def create_jwt_token(self, user_id):
-        expiration = str(datetime.datetime.utcnow() + datetime.timedelta(hours=1))
+        expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         payload = {"user_id": user_id, "exp": expiration}
         token = jwt.encode(payload, self.jwt_secret_key, algorithm="HS256")
         return token, expiration
@@ -127,7 +145,7 @@ if __name__ == "__main__":
     supabase_api.insert(
         "profiles",
         {
-            "profile": "daniel",
+            "username": "daniel",
             "password": "password123",
             "family_members": 20,
             "id": max_id + 1,

@@ -11,3 +11,4 @@ PyJWT
 streamlit_extras
 extra-streamlit-components
 pandas
+pillow
