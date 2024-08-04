@@ -7,7 +7,7 @@ import streamlit as st
 #Title and "slogan"
 st.markdown("<h1 style='text-align: center;'>EcoNom-y</h1>", unsafe_allow_html=True)
 st.markdown(
-    "<h3 style='text-align: center;'>Save Food, Save Money, Save the Environment</h3>", unsafe_allow_html=True
+    "<h3 style='text-align: center;'>Save Food, Save Money, Save Earth</h3>", unsafe_allow_html=True
 )
 
 #Goal and how it could be reached
@@ -48,3 +48,5 @@ with tile2:
 with tile3:
     st.subheader("Track portion sizes")
     st.write("After trying your new recipe, provide feedback on whether or not the portion sizes for that dish were too much or too little, and adjust thme down the line")
+
+col2.page_link("pages/_signup.py", label="Create an account today")
