@@ -11,7 +11,7 @@ import os
 from extra_streamlit_components import CookieManager
 
 
-cookies = CookieManager()
+
 
 JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
 supabase_api = get_supabase_api()
@@ -44,17 +44,23 @@ def login():
 
     #communicates with database from here
     if filtered:
-        dbpass
-        dbpass = supabase_api.selectspecific("profiles","password","profile",username).data[0]["password"]
-        # If the passwords match
-        match = bcrypt.checkpw(bytes(password,'utf-8'), bytes(dbpass,'utf-8'))
-        # make a session cookie
-        jwt_token = create_jwt_token(username) 
-        token = jwt_token[0]
-        expiration = jwt_token[1]
-        # st.session_state.token = token
-        cookies.set("token", token)
-        supabase_api.add_token(username,token,expiration)
+        dbpass = supabase_api.selectspecific("profiles","password","profile",username)
+        print(dbpass)
+        if dbpass.count != None:
+            hashedpass = dbpass.data[0]["password"] # get the hashed password in string form
+            # If the passwords match
+            match = bcrypt.checkpw(bytes(password,'utf-8'), bytes(hashedpass,'utf-8')) # see if inputted psasword is same as the hased password in database
+            # make a session cookie
+            jwt_token = create_jwt_token(username) 
+            token = jwt_token[0]
+            expiration = jwt_token[1]
+            # st.session_state.token = token
+            cookies = CookieManager()
+            cookies.set("token", 12)
+            print(cookies.get_all())
+            supabase_api.add_token(username,token,expiration)
+        else:
+            st.write("Username or password not in database")
 
 with form:
     st.text_input("Username", key="un")
