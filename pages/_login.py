@@ -3,8 +3,8 @@ from utils.sidebar import show_sidebar
 
 show_sidebar()
 from utils.database import get_supabase_api
-from utils.cookies import get_cookie_manager, update_cookie_manager
-from utils.auth import require_non_auth, is_logged_in
+from utils.cookies import get_cookie_manager
+from utils.auth import require_non_auth, is_logged_in, redirect_to_pt
 
 require_non_auth()
 
@@ -50,6 +50,8 @@ def login():
 
     # Display success message outside form context
     st.success("Logged In.", icon="✅")
+    
+
 
 
 with form:

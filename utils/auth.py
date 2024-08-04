@@ -10,11 +10,13 @@ def redirect_to_login():
     st.write("You are not logged in. Redirecting to login page...")
     st.switch_page("pages/_login.py")
 
-
 def redirect_to_home():
     st.write("You are logged in. Redirecting to home page...")
     st.switch_page("Home.py")
 
+def redirect_to_pt():
+    st.write("You are logged in. Redirecting to portion tracker page...")
+    st.switch_page("Portion_Tracker.py")
 
 def is_logged_in() -> str:
     token = cookie_manager.getcookie("token")
