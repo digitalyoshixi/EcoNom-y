@@ -38,8 +38,9 @@ def display_recipe_info(recipe_information, recipe_image, recipe_rating):
     ingredients = recipe_information["ingredients"]
 
     # Multiplier effect
+    # st.session_state.urls[-1]
     muliplierframe = supabaseAPI.selectspecific(
-        "recipes", "portionMultiplier", "recipeURL", st.session_state.urls[-1]
+        "recipes", "portionMultiplier", "recipeURL", "https://www.allrecipes.com/recipe/12360/flaky-food-processor-pie-crust/"
     )
     mplr = 1
     if len(muliplierframe.data) != 0:
@@ -88,8 +89,7 @@ def add_new_recipe():
             return
 
         first_result = search_response[0]
-        st.session_state.urls.append(first_result["url"])
-        st.session_state.images.append(first_result["image"])
+
         recipe_information = all_recipes_api.get_recipe(first_result["url"])
 
         ingredients = display_recipe_info(
@@ -123,7 +123,8 @@ def add_new_recipe():
                     first_result["url"],
                     username,
                 )
-                
+            st.session_state.urls.append(first_result["url"])
+            st.session_state.images.append(first_result["image"])
             st.rerun()
 
 
@@ -161,6 +162,7 @@ def recommend_recipe():
                 ingredients,
                 first_result["image"],
                 first_result["url"],
+                is_logged_in()
             )
             st.session_state.urls.append(first_result["url"])
             st.session_state.images.append(first_result["image"])

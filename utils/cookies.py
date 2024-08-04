@@ -4,6 +4,9 @@ from extra_streamlit_components import CookieManager
 
 cookie_manager = None
 
+def update_cookie_manager(): #whenever you add new cookies
+    cookie_manager = CookieManagerAPI()
+    return cookie_manager
 
 def get_cookie_manager():
     global cookie_manager

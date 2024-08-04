@@ -3,7 +3,7 @@ from utils.sidebar import show_sidebar
 
 show_sidebar()
 from utils.database import get_supabase_api
-from utils.cookies import get_cookie_manager
+from utils.cookies import get_cookie_manager, update_cookie_manager
 from utils.auth import require_non_auth, is_logged_in
 
 require_non_auth()
@@ -40,7 +40,7 @@ def login():
 
         jwt_token = supabase_api.create_jwt_token(username)
         token, expiration = jwt_token
-        cookie_manager.setcookie("token", token, expires_at=expiration)
+        cookie_manager.setcookie("token", token, expires_at=expiration) 
         supabase_api.add_token(username, token, str(expiration))
 
     except Exception as e:

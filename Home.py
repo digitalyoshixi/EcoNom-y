@@ -49,4 +49,4 @@ with tile3:
     st.subheader("Track portion sizes")
     st.write("After trying your new recipe, provide feedback on whether or not the portion sizes for that dish were too much or too little, and adjust thme down the line")
 
-col2.page_link("pages/_signup.py", label="Create an account today")
+col2.page_link("pages/_login.py", label="Create an account today")
