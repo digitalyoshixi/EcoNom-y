@@ -2,7 +2,6 @@ import utils.load_env
 from utils.sidebar import show_sidebar
 from utils.auth import is_logged_in
 
-show_sidebar()
 import streamlit as st
 
 #Title and "slogan"
@@ -56,3 +55,5 @@ if is_logged_in() == False:
     col2.page_link("pages/_signup.py", label="Create an account today")
     col2.text("")
     col2.page_link("pages/_login.py", label="Log in with an account")
+else:
+    show_sidebar()
