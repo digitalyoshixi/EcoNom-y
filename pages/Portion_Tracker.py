@@ -1,3 +1,7 @@
+import utils.require_auth
+from utils.show_sidebar import show_sidebar
+
+show_sidebar()
 import streamlit as st
 from datetime import date
 from utils.database import get_supabase_api
@@ -8,7 +12,6 @@ st.title("Portion Tracker")
 st.subheader(
     "Upload an image of your meal and EcoNom-y will help you to save money and food!"
 )
-
 
 uploadCurrent = st.container(border=True)
 with uploadCurrent:

@@ -1,15 +1,14 @@
 import streamlit as st
-from utils.tokenchecker import getcookie
 from utils.database import get_supabase_api
 
 supabase_api = get_supabase_api()
-tokenvalidity = getcookie("token")
 
 
-def signupmenu():
+def showpage():
     st.title("Create a profile")
     st.subheader(
-        "Make a family profile and start saving your money and the environment")
+        "Make a family profile and start saving your money and the environment"
+    )
     form = st.form("my_form")
 
     def createProfile():
@@ -34,9 +33,7 @@ def signupmenu():
     with form:
         st.text_input("Username", key="un")
         st.text_input("Password", key="pw", type="password")
-        st.number_input("Number of family members", key="family",
-                        value=1, min_value=1, max_value=16)
+        st.number_input(
+            "Number of family members", key="family", value=1, min_value=1, max_value=16
+        )
         st.form_submit_button("Create Account", on_click=createProfile)
-
-
-signupmenu()

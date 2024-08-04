@@ -33,8 +33,7 @@ class ReceiptParser:
         Gemini Prompt:
             {IMAGE_PROMPT}
         """
-        response = self.gemini_api.image_response(
-            prompt=IMAGE_PROMPT, image=receipt)
+        response = self.gemini_api.image_response(prompt=IMAGE_PROMPT, image=receipt)
 
         return json_repair.loads(response)
 

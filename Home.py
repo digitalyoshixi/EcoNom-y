@@ -1,31 +1,26 @@
 import utils.load_env
+from utils.show_sidebar import show_sidebar
+
+show_sidebar()
 import streamlit as st
-from extra_streamlit_components import CookieManager
 
-# from pages import Portion_Tracker, login, Recipe_Bank, signup
-
-st.markdown("<h1 style='text-align: center;'>EcoNom-y</h1>",
-            unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>EcoNom-y</h1>", unsafe_allow_html=True)
 st.markdown(
     "<h3 style='text-align: center;'>Save Food, Save Money</h3>", unsafe_allow_html=True
 )
 
-st.markdown("<h4 style='text-align: left;'>Our Goal:</h4>",
-            unsafe_allow_html=True)
-st.markdown("Help consumers reduce their food waste")
+st.markdown("<h4 style='text-align: left;'>Our Goal:</h4>", unsafe_allow_html=True)
+st.markdown(
+    "Help consumers reduce their food waste by helping them monitor and reduce overpurchasing of food and ingredients"
+)
 
-# @st.cache_resource
-# def get_manager():
-#     return stx.CookieManager()
+st.write(
+    '_"We often waste good food because we buy too much, don’t plan our meals, or don’t store our food correctly."_'
+)
+st.write(
+    "- City of Toronto, https://www.toronto.ca/services-payments/recycling-organics-garbage/long-term-waste-strategy/waste-reduction/food-waste/"
+)
 
-cookie_manager = CookieManager()
-cookies = cookie_manager.get_all()
-print(cookies)
-# cookie_manager.set("token", 19191)
-# cookies = CookieManager
-cookies.delete("key")
-cookies = cookie_manager.get_all()
-print(cookies)
-
-# if 'token' not in st.session_state:
-#     st.session_state.token = 0 # nothing. will not validate anything at all
+st.markdown(
+    "To help consumers reduce food waste, EcoNom-y aims to help with meal planning and ingredient tracking with the use of various emerging technologies"
+)

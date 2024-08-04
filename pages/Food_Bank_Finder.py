@@ -1,3 +1,7 @@
+import utils.require_auth
+from utils.show_sidebar import show_sidebar
+
+show_sidebar()
 import streamlit as st
 import pandas as pd
 from utils.food_banks import FoodBanks
@@ -41,19 +45,13 @@ def receive_address(address):
         {"latitudes": latitudes, "longitudes": longitudes, "colours": colours}
     )
 
-    # Create the map and address columns
-    col1, col2 = st.columns([3, 1])
-
     # Display the map
-    col1.map(
+    st.map(
         map_df, latitude="latitudes", longitude="longitudes", color="colours", zoom=13
     )
 
-    # Create a DataFrame for the table and display it
+    # Create a DataFrame for the table
     table_df = pd.DataFrame(table_data)
-
-    col2.container(height=200)
-    col2.write(table_df)
 
     # Custom CSS to left-align table headers
     st.markdown(

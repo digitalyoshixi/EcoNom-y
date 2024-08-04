@@ -7,7 +7,7 @@ lxml
 faust-cchardet
 bcrypt
 json-repair
-jwt
+PyJWT
 streamlit_extras
 extra-streamlit-components
 pandas
