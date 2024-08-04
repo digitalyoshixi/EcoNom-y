@@ -11,8 +11,6 @@ import os
 from extra_streamlit_components import CookieManager
 
 
-
-
 JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
 supabase_api = get_supabase_api()
 
