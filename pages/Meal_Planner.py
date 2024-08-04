@@ -5,6 +5,7 @@ from utils.database import get_supabase_api
 from utils.recipes import AllRecipesAPI
 from utils.auth import require_auth, is_logged_in
 from utils.sidebar import show_sidebar
+from utils.gemini import get_gemini_api
 
 show_sidebar()
 
@@ -12,7 +13,7 @@ show_sidebar()
 require_auth()
 supabaseAPI = get_supabase_api()
 all_recipes_api = AllRecipesAPI()
-
+gemini = get_gemini_api()
 
 def display_recipe_info(recipe_information, recipe_image, recipe_rating):
     st.title(recipe_information["name"])
@@ -51,6 +52,18 @@ def add_recipe_to_db(
         username,
     )
 
+import re
+
+def multiply_numbers(string, multiplier):
+    # Function to multiply a matched number by 2
+    def double(match):
+        return str(float(match.group()) * multipler)
+    
+    # Use regex to find all numbers and replace them with their doubled value
+    return re.sub(r'\d+', double, string)
+
+
+
 
 @st.dialog("Add a new recipe!")
 def add_new_recipe():
@@ -74,6 +87,18 @@ def add_new_recipe():
             ingredients_string = st.text_input(
                 value=ingredients_string, label="Change them here:"
             )
+            # Apply multiplier effect
+            muliplierframe = supabaseAPI.selectspecific(
+                "recipes", "portionMultiplier", "recipeURL", first_result["url"]
+            )
+            multipler = 1
+            if len(muliplierframe.data) != 0:
+                multiplier = float(muliplierframe.data[0]["portionMultiplier"])/100 
+            
+            ingredients = multiply_numbers(ingredients_string, multiplier).split(",")
+            # PROMPT = f"apply a {multiplier}x multiplier to each item quantity in the list and return them in JSON format. Dont give me any other text: {ingredients_string}"
+            # resp = gemini.text_response(f"multiply all ingredients by {multiplier}x: {ingredients_string}")
+            # print(resp)
             ingredients = ingredients_string.split(",")
 
         st.write("URL: ", first_result["url"])
@@ -116,6 +141,7 @@ def recommend_recipe():
         ingredients_string = st.text_input(
             value=ingredients_string, label="Change them here:"
         )
+        
         ingredients = ingredients_string.split(",")
 
     st.write("URL: ", first_result["url"])
