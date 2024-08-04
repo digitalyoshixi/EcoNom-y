@@ -6,6 +6,7 @@ from utils.recipes import AllRecipesAPI
 from utils.auth import require_auth, is_logged_in
 from utils.sidebar import show_sidebar
 from utils.gemini import get_gemini_api
+import re
 
 show_sidebar()
 
@@ -14,6 +15,14 @@ require_auth()
 supabaseAPI = get_supabase_api()
 all_recipes_api = AllRecipesAPI()
 gemini = get_gemini_api()
+
+
+def multiply_numbers(string, multiplier):
+    # Function to multiply a matched number by 2
+    def double(match):
+        return str(float(match.group()) * multiplier)    
+    # Use regex to find all numbers and replace them with their doubled value
+    return re.sub(r'\d+', double, string)
 
 def display_recipe_info(recipe_information, recipe_image, recipe_rating):
     st.title(recipe_information["name"])
@@ -25,7 +34,20 @@ def display_recipe_info(recipe_information, recipe_image, recipe_rating):
             st.write(f"Rating: {rating}")
 
     st.subheader("Ingredients")
-    ingredients = recipe_information["ingredients"]
+    #ingredients = recipe_information["ingredients"]
+    ingredients = ','.join(recipe_information["ingredients"])
+
+    # Multiplier effect
+    muliplierframe = supabaseAPI.selectspecific(
+        "recipes", "portionMultiplier", "recipeURL", st.session_state.urls[-1]
+    )
+    mplr = 2
+    # if len(muliplierframe.data) != 0:
+    #     mplr = float(muliplierframe.data[0]["portionMultiplier"])/100 
+    
+    ingredients = multiply_numbers(ingredients, mplr).split(",")
+    print(ingredients)
+
     ingredients_list = "\n\n".join(
         [f"{i + 1}. {ingredient}" for i, ingredient in enumerate(ingredients)]
     )
@@ -52,17 +74,6 @@ def add_recipe_to_db(
         username,
     )
 
-import re
-
-def multiply_numbers(string, multiplier):
-    # Function to multiply a matched number by 2
-    def double(match):
-        return str(float(match.group()) * multipler)
-    
-    # Use regex to find all numbers and replace them with their doubled value
-    return re.sub(r'\d+', double, string)
-
-
 
 
 @st.dialog("Add a new recipe!")
@@ -75,6 +86,8 @@ def add_new_recipe():
             return
 
         first_result = search_response[0]
+        st.session_state.urls.append(first_result["url"])
+        st.session_state.images.append(first_result["image"])
         recipe_information = all_recipes_api.get_recipe(first_result["url"])
 
         ingredients = display_recipe_info(
@@ -87,15 +100,7 @@ def add_new_recipe():
             ingredients_string = st.text_input(
                 value=ingredients_string, label="Change them here:"
             )
-            # Apply multiplier effect
-            muliplierframe = supabaseAPI.selectspecific(
-                "recipes", "portionMultiplier", "recipeURL", first_result["url"]
-            )
-            multipler = 1
-            if len(muliplierframe.data) != 0:
-                multiplier = float(muliplierframe.data[0]["portionMultiplier"])/100 
             
-            ingredients = multiply_numbers(ingredients_string, multiplier).split(",")
             # PROMPT = f"apply a {multiplier}x multiplier to each item quantity in the list and return them in JSON format. Dont give me any other text: {ingredients_string}"
             # resp = gemini.text_response(f"multiply all ingredients by {multiplier}x: {ingredients_string}")
             # print(resp)
@@ -116,8 +121,7 @@ def add_new_recipe():
                     first_result["url"],
                     username,
                 )
-                st.session_state.urls.append(first_result["url"])
-                st.session_state.images.append(first_result["image"])
+                
             st.rerun()
 
 
