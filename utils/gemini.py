@@ -6,7 +6,6 @@ from PIL import Image, ImageFile
 os.environ["GRPC_VERBOSITY"] = "ERROR"
 os.environ["GLOG_minloglevel"] = "2"
 
-
 class GeminiAPI():
     def __init__(self, api_key: str) -> None:
         genai.configure(api_key=api_key)
