@@ -2,6 +2,8 @@ import streamlit as st
 import sys
 import os
 import bcrypt
+from utils.tokenchecker import getcookie
+
 
 sys.path.insert(1, 'utils')
 from database import get_supabase_api
@@ -9,7 +11,7 @@ from database import get_supabase_api
 supabase_api = get_supabase_api()
 # from utils.database import SupabaseAPI 
 
-
+tokenvalidity = getcookie("token")
 
 def signupmenu():
     st.title("Create a profile")
@@ -43,5 +45,6 @@ def signupmenu():
         st.text_input("Number of family members", key="family")
         st.form_submit_button("Create Account", on_click=createProfile)
 
-print(st.session_state.token)
+#print(st.session_state.token)
+print(tokenvalidity)
 signupmenu()
