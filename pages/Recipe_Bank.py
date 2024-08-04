@@ -1,3 +1,4 @@
+#all imports
 import streamlit as st
 import random
 from utils.recipes import AllRecipesAPI
@@ -6,14 +7,15 @@ from extra_streamlit_components import CookieManager
 cookies = CookieManager()
 
 meals = ["https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600", "https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=600", "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=600","https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600", "https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=600", "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=600","https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600", "https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=600", "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=600"]
+#setting up subabase API
+from utils.database import get_supabase_api
+supabaseAPI = get_supabase_api()
+
+
 all_recipes_api = AllRecipesAPI()
 
-def makeRecipeCard(recipeName, image):
-    meals.append(image)
 
-def subtractIngredients():
-    pass
-
+#function used to add a new recipe to the user's recipe bank
 @st.dialog("Add a new recipe!")
 def addNewRecipe():
     recipeName = st.text_input("Recipe Name:")
@@ -46,18 +48,27 @@ def addNewRecipe():
                         st.write("Rating: " + rating)
                     except:
                         pass
+            
+            supabaseIngredientsList = []
 
             with st.container():
                 st.subheader("Ingredients: ")
                 ingredientsList = ""
                 for i in range(len(recipe_information["ingredients"])):
+                    supabaseIngredientsList.append(recipe_information["ingredients"][i])
                     ingredientsList += str(i+1) + ". " + recipe_information["ingredients"][i] + "\n\n"
                 st.write(ingredientsList)
+
+            ingredientsString = ", ".join(supabaseIngredientsList)
+            
+            with st.expander("Not happy with the ingredients?"):
+                st.write("previous ingredients")
+                ingredientsList = st.text_input(value = ingredientsString, label="Change them here: ")
+                supabaseIngredientsList = ingredientsList.split(",")
 
 
             with st.container():
                 st.subheader("Steps")
-                steps = ""
                 for i in range(len(recipe_information["steps"])):
                     st.write(str(i+1) + ". " + recipe_information["steps"][i]["task"] + "\n\n")
                     if "picture" in recipe_information["steps"][i]:
@@ -73,12 +84,19 @@ def addNewRecipe():
                    container.image(recipe_image, use_column_width = "always")
             with col2:
                 add = st.button("Add this Recipe!", type="primary")
+
+                #checks if user already added this recipe
                 if add:
-                    st.session_state.recipes.append(recipe_image)
-                    st.session_state.urls.append(recipe_url)
-                    st.session_state.images.append(recipe_image)
-                    st.rerun()
-                 
+                    if supabaseAPI.selectspecific("recipes", "recipeURL", "recipeURL", recipe_url).count:
+                        st.write("This recipe has already been added.")
+                    else:
+                        supabaseAPI.add_recipe(recipe_name, {"ingredients": supabaseIngredientsList}, recipe_image, 1, recipe_url)
+                        st.session_state.recipes.append(recipe_image)
+                        st.session_state.urls.append(recipe_url)
+                        st.session_state.images.append(recipe_image)
+                        st.rerun()
+
+#function that recommends the user a new recipe 
 @st.dialog("Here's a new recipe!")
 def recommendRecipe():
     search_response = all_recipes_api.random_recipes()
@@ -94,6 +112,10 @@ def recommendRecipe():
     recipe_image = first_result['image']
     recipe_information = all_recipes_api.get_recipe(first_result['url'])
 
+    #checks if the random recipe already exists
+    if supabaseAPI.selectspecific("recipes", "recipeURL", "recipeURL", recipe_url).count:
+        st.rerun()
+
     st.title(recipe_name)
 
     st.image(recipe_image, use_column_width = "always")
@@ -108,13 +130,22 @@ def recommendRecipe():
             except:
                 pass
 
+    supabaseIngredientsList = []
+
     with st.container():
         st.subheader("Ingredients: ")
         ingredientsList = ""
         for i in range(len(recipe_information["ingredients"])):
+            supabaseIngredientsList.append(recipe_information["ingredients"][i])
             ingredientsList += str(i+1) + ". " + recipe_information["ingredients"][i] + "\n\n"
         st.write(ingredientsList)
 
+    ingredientsString = ", ".join(supabaseIngredientsList)
+            
+    with st.expander("Not happy with the ingredients?"):
+        st.write("previous ingredients")
+        ingredientsList = st.text_input(value = ingredientsString, label="Change them here: ")
+        supabaseIngredientsList = ingredientsList.split(",")
 
     with st.container():
         st.subheader("Steps")
@@ -125,6 +156,7 @@ def recommendRecipe():
                 st.image(recipe_information["steps"][i]['picture'], use_column_width = "always")
         
     st.write("URL: ", recipe_url)
+    print(recipe_name)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -134,9 +166,11 @@ def recommendRecipe():
     with col2:
         add = st.button("Add this Recipe!", type="primary")
         if add:
+            supabaseAPI.add_recipe(recipe_name, {"ingredients": supabaseIngredientsList}, recipe_image, 1, recipe_url)
             st.session_state.recipes.append(recipe_image)
             st.session_state.urls.append(recipe_url)
             st.session_state.images.append(recipe_image)
+            print(recipe_name)
             st.rerun()
 
 @st.dialog("Lets do this!")

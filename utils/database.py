@@ -45,6 +45,16 @@ class SupabaseAPI:
             "profile" : username,
             "expiry" : expiration
         })
+
+    def add_recipe(self, recipeName, ingredientList, imageURL, portionMultiplier, recipeURL):
+        supabase_api.insert("recipes",{
+            "recipeName" : recipeName,
+            "ingredientList" : ingredientList,
+            "imageURL" : imageURL,
+            "portionMultiplier" : portionMultiplier,
+            "recipeURL": recipeURL
+        })
+
     
 
 
