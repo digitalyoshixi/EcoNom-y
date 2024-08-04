@@ -14,8 +14,10 @@ st.markdown("Help consumers reduce their food waste")
 
 cookie_manager = CookieManager()
 cookies = cookie_manager.get_all()
-cookie_manager.set("token", 19191)
-
+print(cookies)
+#cookie_manager.set("token", 19191)
+# cookies = CookieManager
+# cookies.delete("token")
 
 # if 'token' not in st.session_state:
 #     st.session_state.token = 0 # nothing. will not validate anything at all
