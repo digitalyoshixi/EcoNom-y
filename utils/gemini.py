@@ -6,10 +6,11 @@ from PIL import Image, ImageFile
 os.environ["GRPC_VERBOSITY"] = "ERROR"
 os.environ["GLOG_minloglevel"] = "2"
 
-class GeminiAPI():
+
+class GeminiAPI:
     def __init__(self, api_key: str) -> None:
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel("gemini-1.5-flash")
 
     def image_response(self, prompt: str, image: ImageFile) -> str:
         """

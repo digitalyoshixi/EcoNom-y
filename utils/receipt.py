@@ -33,8 +33,7 @@ class ReceiptParser:
         Gemini Prompt:
             {IMAGE_PROMPT}
         """
-        response = self.gemini_api.image_response(
-            prompt=IMAGE_PROMPT, image=receipt)
+        response = self.gemini_api.image_response(prompt=IMAGE_PROMPT, image=receipt)
 
         return json_repair.loads(response)
 
@@ -54,4 +53,4 @@ if __name__ == "__main__":
     image = Image.open(BytesIO(response.content))
     parsed_receipt = receipt_parser.parse_receipt(image)
     for item in parsed_receipt:
-        print(item['quantity'], item['ingredient'])
+        print(item["quantity"], item["ingredient"])

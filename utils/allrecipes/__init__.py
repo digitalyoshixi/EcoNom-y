@@ -13,36 +13,40 @@ class AllRecipes:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers = {
-            'Cookie': 'euConsent=true',
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"}
+            "Cookie": "euConsent=true",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0",
+        }
 
     def _fetch_page(self, url, params=None):
         response = self.session.get(url, params=params)
-        return BeautifulSoup(response.text, 'lxml')
+        return BeautifulSoup(response.text, "lxml")
 
     def _parse_article(self, article):
         data = {}
         try:
-            data["name"] = article.find(
-                "span", {
-                    "class": "card__title"}).get_text(
-                strip=True)
+            data["name"] = article.find("span", {"class": "card__title"}).get_text(
+                strip=True
+            )
             if len(data["name"]) > 80:
                 data["name"] = data["name"][:80] + "..."
-            data["url"] = article['href']
+            data["url"] = article["href"]
             data["rate"] = len(article.find_all("svg", {"class": "icon-star"}))
             if article.find_all("svg", {"class": "icon-star-half"}):
                 data["rate"] += 0.5
-            data["image"] = article.find('img').get(
-                'data-src') or article.find('img').get('src')
+            data["image"] = article.find("img").get("data-src") or article.find(
+                "img"
+            ).get("src")
         except Exception:
             pass
         return data
 
     def _extract_articles(self, soup):
         articles = soup.find_all("a", {"class": "mntl-card-list-items"})
-        articles = [a for a in articles if a["href"].startswith(
-            "https://www.allrecipes.com/recipe/")]
+        articles = [
+            a
+            for a in articles
+            if a["href"].startswith("https://www.allrecipes.com/recipe/")
+        ]
         return [self._parse_article(article) for article in articles]
 
     def search(self, search_string):
@@ -54,13 +58,12 @@ class AllRecipes:
         """
         Returns a random cuisine, and the link to the AllRecipes page for it.
         """
-        soup = self._fetch_page(
-            "https://www.allrecipes.com/cuisine-a-z-6740455")
+        soup = self._fetch_page("https://www.allrecipes.com/cuisine-a-z-6740455")
 
         cuisines = soup.select("a.mntl-link-list__link")
         random_cuisine = random.choice(cuisines)
 
-        return random_cuisine.text, random_cuisine['href']
+        return random_cuisine.text, random_cuisine["href"]
 
     def random_recipes(self) -> list[dict]:
         """
@@ -75,7 +78,7 @@ class AllRecipes:
             "/recipes/84/healthy-recipes",
             "/recipes/76/appetizers-and-snacks",
             "/",
-            "/recipes/17562/dinner"
+            "/recipes/17562/dinner",
         ]
         soup = self._fetch_page(self.BASE_URL + random.choice(pages))
         return self._extract_articles(soup)
@@ -86,29 +89,32 @@ class AllRecipes:
 
     @staticmethod
     def _get_rating(soup):
-        return float(soup.select(
-            "div.mm-recipes-review-bar__rating")[0].get_text(strip=True))
+        return float(
+            soup.select("div.mm-recipes-review-bar__rating")[0].get_text(strip=True)
+        )
 
     @staticmethod
     def _get_ingredients(soup):
-        return [li.get_text().strip() for li in soup.select(
-            "ul.mm-recipes-structured-ingredients__list")[0].find_all("li")]
+        return [
+            li.get_text().strip()
+            for li in soup.select("ul.mm-recipes-structured-ingredients__list")[
+                0
+            ].find_all("li")
+        ]
 
     @staticmethod
     def _get_steps(soup):
         steps = []
-        for index, step in enumerate(soup.select(
-                "div.mm-recipes-steps__content")[0].select("li")):
+        for index, step in enumerate(
+            soup.select("div.mm-recipes-steps__content")[0].select("li")
+        ):
             task = step.find("p").text.strip()
             img_element = step.find("img")
 
-            step_data = {
-                "task": task,
-                "step": str(
-                    index + 1)}
+            step_data = {"task": task, "step": str(index + 1)}
 
             if img_element:
-                step_data['picture'] = img_element['data-src']
+                step_data["picture"] = img_element["data-src"]
 
             steps.append(step_data)
 
@@ -119,11 +125,10 @@ class AllRecipes:
         information_dict = {}
         for item in soup.select("div.mm-recipes-details__item"):
             label = item.find(
-                "div", {
-                    "class": "mm-recipes-details__label"}).text.strip()
+                "div", {"class": "mm-recipes-details__label"}
+            ).text.strip()
             value = item.find("div", {"class": "mm-recipes-details__value"})
-            information_dict[label] = value.get_text(
-                strip=True) if value else ""
+            information_dict[label] = value.get_text(strip=True) if value else ""
         return information_dict
 
     def _get_prep_time(self, times_data):
@@ -165,12 +170,15 @@ class AllRecipes:
                     "prep_time",
                     "cook_time",
                     "total_time",
-                        "nb_servings"]:
-                    data[element["name"]] = getattr(
-                        self, f"_get_{element['name']}")(times_data)
+                    "nb_servings",
+                ]:
+                    data[element["name"]] = getattr(self, f"_get_{element['name']}")(
+                        times_data
+                    )
                 else:
-                    data[element["name"]] = getattr(
-                        self, f"_get_{element['name']}")(soup)
+                    data[element["name"]] = getattr(self, f"_get_{element['name']}")(
+                        soup
+                    )
             except Exception:
                 data[element["name"]] = element["default_value"]
 
