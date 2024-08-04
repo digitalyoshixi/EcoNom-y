@@ -9,3 +9,5 @@ bcrypt
 json-repair
 jwt
 streamlit_extras
+extra-streamlit-components
+pandas
