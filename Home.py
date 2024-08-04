@@ -1,5 +1,6 @@
 import utils.load_env
 from utils.sidebar import show_sidebar
+from utils.auth import is_logged_in
 
 show_sidebar()
 import streamlit as st
@@ -49,4 +50,9 @@ with tile3:
     st.subheader("Track portion sizes")
     st.write("After trying your new recipe, provide feedback on whether or not the portion sizes for that dish were too much or too little, and adjust thme down the line")
 
-col2.page_link("pages/_signup.py", label="Create an account today")
+#Only give this if its someone who isnt signed in
+
+if is_logged_in() == False:
+    col2.page_link("pages/_signup.py", label="Create an account today")
+    col2.text("")
+    col2.page_link("pages/_login.py", label="Log in with an account")
