@@ -52,7 +52,7 @@ def receive_address(address):
     # Create a DataFrame for the table and display it
     table_df = pd.DataFrame(table_data)
 
-    col2.container.height(200)
+    col2.container(height=200)
     col2.write(table_df)
 
     # Custom CSS to left-align table headers
