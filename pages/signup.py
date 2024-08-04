@@ -1,24 +1,15 @@
 import streamlit as st
-import sys
-import os
-import bcrypt
 from utils.tokenchecker import getcookie
-
-
-sys.path.insert(1, "utils")
-from database import get_supabase_api
+from utils.database import get_supabase_api
 
 supabase_api = get_supabase_api()
-# from utils.database import SupabaseAPI
-
 tokenvalidity = getcookie("token")
 
 
 def signupmenu():
     st.title("Create a profile")
     st.subheader(
-        "Make a family profile and start saving your money and the environment"
-    )
+        "Make a family profile and start saving your money and the environment")
     form = st.form("my_form")
 
     def createProfile():
@@ -37,20 +28,15 @@ def signupmenu():
             validity = False
 
         if validity:
-            salt = bcrypt.gensalt()
-            hashed_passwd = bcrypt.hashpw(bytes(password, "utf-8"), salt).decode(
-                "utf-8"
-            )
-            supabase_api.add_user(username, hashed_passwd, size)
+            supabase_api.add_user(username, password, size)
             form.success("Account Created")
 
     with form:
         st.text_input("Username", key="un")
         st.text_input("Password", key="pw", type="password")
-        st.text_input("Number of family members", key="family")
+        st.number_input("Number of family members", key="family",
+                        value=1, min_value=1, max_value=16)
         st.form_submit_button("Create Account", on_click=createProfile)
 
 
-# print(st.session_state.token)
-print(tokenvalidity)
 signupmenu()

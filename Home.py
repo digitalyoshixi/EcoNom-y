@@ -23,7 +23,9 @@ cookies = cookie_manager.get_all()
 print(cookies)
 # cookie_manager.set("token", 19191)
 # cookies = CookieManager
-# cookies.delete("token")
+cookies.delete("key")
+cookies = cookie_manager.get_all()
+print(cookies)
 
 # if 'token' not in st.session_state:
 #     st.session_state.token = 0 # nothing. will not validate anything at all
