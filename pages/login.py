@@ -8,6 +8,10 @@ sys.path.insert(1, 'utils')
 from database import get_supabase_api
 import load_env
 import os 
+from extra_streamlit_components import CookieManager
+
+
+cookies = CookieManager()
 
 JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
 supabase_api = get_supabase_api()
@@ -40,6 +44,7 @@ def login():
 
     #communicates with database from here
     if filtered:
+        dbpass
         dbpass = supabase_api.selectspecific("profiles","password","profile",username).data[0]["password"]
         # If the passwords match
         match = bcrypt.checkpw(bytes(password,'utf-8'), bytes(dbpass,'utf-8'))
@@ -47,9 +52,9 @@ def login():
         jwt_token = create_jwt_token(username) 
         token = jwt_token[0]
         expiration = jwt_token[1]
-        st.session_state.token = token
+        # st.session_state.token = token
+        cookies.set("token", token)
         supabase_api.add_token(username,token,expiration)
-
 
 with form:
     st.text_input("Username", key="un")
