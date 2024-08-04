@@ -35,17 +35,19 @@ def display_recipe_info(recipe_information, recipe_image, recipe_rating):
 
     st.subheader("Ingredients")
     #ingredients = recipe_information["ingredients"]
-    ingredients = ','.join(recipe_information["ingredients"])
+    ingredients = recipe_information["ingredients"]
 
     # Multiplier effect
     muliplierframe = supabaseAPI.selectspecific(
         "recipes", "portionMultiplier", "recipeURL", st.session_state.urls[-1]
     )
-    mplr = 2
-    # if len(muliplierframe.data) != 0:
-    #     mplr = float(muliplierframe.data[0]["portionMultiplier"])/100 
+    mplr = 1
+    if len(muliplierframe.data) != 0:
+        mplr = float(muliplierframe.data[0]["portionMultiplier"])/100 
     
-    ingredients = multiply_numbers(ingredients, mplr).split(",")
+    for i in range(len(ingredients)):
+        ingredients[i] = multiply_numbers(ingredients[i],mplr)
+    # ingredients = multiply_numbers(ingredients, mplr)
     print(ingredients)
 
     ingredients_list = "\n\n".join(
