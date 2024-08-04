@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import date
-
+from utils.database import get_supabase_api
+supabaseAPI = get_supabase_api()
 
 st.title("Portion Tracker")
 st.subheader(
@@ -24,10 +25,14 @@ with mealFeedback:
     st.subheader("Meal Feedback")
 
     text = "How filling was the meal for your family?"
-    # if (numFamilyMembers < 2):
-    #     text = "How filling was the meal?"
-    # else:
-    #     text = "How filling was the meal for your family?"
+    numFamilyMembers = SupabaseAPI.selectspecific()
+    if (numFamilyMembers < 2):
+        text = "How filling was the meal?"
+    else:
+        text = "How filling was the meal for your family?"
+
+
+
 
     st.write(text)
     feedback = st.selectbox(text, 
@@ -36,9 +41,7 @@ with mealFeedback:
         "the perfect amount of food!" + "😁",
         "a little too much food.",
         "way too much food" + "😡"],index=None)
-  
+
     if feedback is not None:
         st.markdown(f"This time there was *{feedback}*")
-
-
-# image upload (picture of your meal)
+    
